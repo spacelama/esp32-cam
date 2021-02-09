@@ -4,9 +4,9 @@
 */
 
 // According to the board, cancel the corresponding macro definition
-// #define LILYGO_T5_V213
+#define LILYGO_T5_V213
 // #define LILYGO_T5_V22
-#define LILYGO_T5_V24
+// #define LILYGO_T5_V24
 // #define LILYGO_T5_V28
 
 
@@ -21,7 +21,7 @@
 // #include <GxGDEW027W3/GxGDEW027W3.h>      // 2.7" b/w
 
 // #include <GxGDEH0213B72/GxGDEH0213B72.h>  // 2.13" b/w new panel
-// #include <GxGDEH0213B73/GxGDEH0213B73.h>  // 2.13" b/w newer panel
+#include <GxGDEH0213B73/GxGDEH0213B73.h>  // 2.13" b/w newer panel
 // #include <GxDEPG0213BN/GxDEPG0213BN.h>    // 2.13" b/w newer panel
 
 // #include <GxGDEH029A1/GxGDEH029A1.h>      // 2.9" b/w
@@ -66,87 +66,53 @@ void setup(void)
 void loop()
 {
 // use asymmetric values for test
-    uint16_t box_x = 10;
-    uint16_t box_y = 15;
-    uint16_t box_w = 70;
+    uint16_t box_x = 20;
+    uint16_t box_y = 25;
+    uint16_t box_w = 60;
     uint16_t box_h = 20;
-    uint16_t cursor_y = box_y + box_h - 6;
+    uint16_t cursor_y = GxEPD_WIDTH/2;
     float value = 13.95;
-    display.setFont(&FreeMonoBold9pt7b);
+    display.setRotation(1);
+    display.setFont(&FreeMonoBold24pt7b);
     display.setTextColor(GxEPD_BLACK);
-    display.setRotation(0);
-    // draw background
-    display.drawExampleBitmap(BitmapExample1, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
-    display.update();
-    delay(2000);
 
     // partial update to full screen to preset for partial update of box window
     // (this avoids strange background effects)
-    display.updateWindow(0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, false);
+//    display.fillRect(0, 0, GxEPD_HEIGHT, GxEPD_WIDTH, GxEPD_WHITE);
+//    display.updateWindow(0, 0, GxEPD_HEIGHT, GxEPD_WIDTH, true);
 
-    // show where the update box is
-    for (uint16_t r = 0; r < 4; r++) {
-        display.setRotation(r);
-        display.fillRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
-        display.updateWindow(box_x, box_y, box_w, box_h, true);
-        delay(1000);
-        display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-        display.updateWindow(box_x, box_y, box_w, box_h, true);
-    }
-    // show updates in the update box
-    for (uint16_t r = 0; r < 4; r++) {
-        // reset the background
-        display.setRotation(0);
-        display.drawExampleBitmap(BitmapExample1, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
+    for (uint16_t i = 1; i <= 10; i++) {
+        Serial.printf("i=%d, x=%d, y=%d\n",i, box_x, cursor_y);
+        display.fillRect(0, 0, GxEPD_HEIGHT, GxEPD_WIDTH, GxEPD_WHITE);
+//        display.eraseDisplay(true); // not partial
+        display.setCursor(box_x, cursor_y);
+        display.print(value * i, 2);
         display.updateWindow(0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, false);
-        display.setRotation(r);
-        for (uint16_t i = 1; i <= 10; i++) {
-            display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-            display.setCursor(box_x, cursor_y);
-            display.print(value * i, 2);
-            display.updateWindow(box_x, box_y, box_w, box_h, true);
-            delay(2000);
-        }
+//            display.updateWindow(box_x, box_y, box_w, box_h, true);
+        display.powerDown();
+        // FIXME: need to follow instructions and powerdown, but the display starts to fade
         delay(2000);
-        display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-        display.updateWindow(box_x, box_y, box_w, box_h, true);
     }
-    // should have checked this, too
-    box_x = GxEPD_HEIGHT - box_x - box_w - 1; // not valid for all corners
-    // should show on right side of long side
-    // reset the background
-    display.setRotation(0);
-    display.drawExampleBitmap(BitmapExample1, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
-    display.updateWindow(0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, false);
-    // show where the update box is
-    for (uint16_t r = 0; r < 4; r++) {
-        display.setRotation(r);
-        display.fillRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
-        display.updateWindow(box_x, box_y, box_w, box_h, true);
-        delay(1000);
-        display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-        display.updateWindow(box_x, box_y, box_w, box_h, true);
-    }
-    // show updates in the update box
-    for (uint16_t r = 0; r < 4; r++) {
-        // reset the background
-        display.setRotation(0);
-        display.drawExampleBitmap(BitmapExample1, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
-        display.updateWindow(0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, false);
-        display.setRotation(r);
-        if (box_x >= display.width()) continue; // avoid delay
-        for (uint16_t i = 1; i <= 10; i++) {
-            display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-            display.setCursor(box_x, cursor_y);
-            display.print(value * i, 2);
-            display.updateWindow(box_x, box_y, box_w, box_h, true);
-            delay(2000);
-        }
-        delay(2000);
-        display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-        display.updateWindow(box_x, box_y, box_w, box_h, true);
-    }
-    display.setRotation(0);
-    display.powerDown();
-    delay(30000);
+
+    delay(10000);
+
+
+  /* time_now_s = (millis() - time_start_ms) / 1000; */
+  /* char time_string[] = {'0', '0', ':', '0', '0', '\0'}; */
+  /* time_string[0] = time_now_s / 60 / 10 + '0'; */
+  /* time_string[1] = time_now_s / 60 % 10 + '0'; */
+  /* time_string[3] = time_now_s % 60 / 10 + '0'; */
+  /* time_string[4] = time_now_s % 60 % 10 + '0'; */
+
+  /* paint.SetWidth(32); */
+  /* paint.SetHeight(96); */
+  /* paint.SetRotate(ROTATE_90); */
+
+  /* paint.Clear(UNCOLORED); */
+  /* paint.DrawStringAt(0, 4, time_string, &Font24, COLORED); */
+  /* epd.SetFrameMemory(paint.GetImage(), 80, 72, paint.GetWidth(), paint.GetHeight()); */
+  /* epd.DisplayFrame(); */
+
+  /* delay(500); */
+
 }
