@@ -41,10 +41,16 @@
 #include GxEPD_BitmapExamples
 
 // FreeFonts from Adafruit_GFX
-#include <Fonts/FreeMonoBold9pt7b.h>
-#include <Fonts/FreeMonoBold12pt7b.h>
-#include <Fonts/FreeMonoBold18pt7b.h>
-#include <Fonts/FreeMonoBold24pt7b.h>
+//#include <Fonts/FreeMonoBold9pt7b.h>
+//#include <Fonts/FreeMonoBold12pt7b.h>
+//#include <Fonts/FreeMonoBold18pt7b.h>
+//#include <Fonts/FreeMonoBold24pt7b.h>
+
+// generate with:
+// /home/tconnors/Arduino/libraries/Adafruit_GFX_Library/fontconvert/fontconvert /usr/share/fonts/truetype/freefont/FreeMonoBold.ttf 32 > /home/tconnors/Arduino/PartialUpdateExample/FreeMonoBold32pt7b.h
+//#include "FreeMonoBold32pt7b.h"
+//#include "FreeMonoBold48pt7b.h"
+#include "FreeSansBold48pt7b.h"
 #include <GxIO/GxIO_SPI/GxIO_SPI.h>
 #include <GxIO/GxIO.h>
 #include <WiFi.h>
@@ -63,6 +69,12 @@ void setup(void)
 }
 
 
+
+
+// FIXME: do 1 minute partial update when powered on, and 15 minute Full update when powered off
+
+unsigned long time_start_ms=0;
+
 void loop()
 {
 // use asymmetric values for test
@@ -73,7 +85,7 @@ void loop()
     uint16_t cursor_y = GxEPD_WIDTH/2;
     float value = 13.95;
     display.setRotation(1);
-    display.setFont(&FreeMonoBold24pt7b);
+    display.setFont(&FreeSansBold48pt7b);
     display.setTextColor(GxEPD_BLACK);
 
     // partial update to full screen to preset for partial update of box window
@@ -81,38 +93,40 @@ void loop()
 //    display.fillRect(0, 0, GxEPD_HEIGHT, GxEPD_WIDTH, GxEPD_WHITE);
 //    display.updateWindow(0, 0, GxEPD_HEIGHT, GxEPD_WIDTH, true);
 
-    for (uint16_t i = 1; i <= 10; i++) {
-        Serial.printf("i=%d, x=%d, y=%d\n",i, box_x, cursor_y);
+    // from /home/tconnors/Arduino/micropython/e-Paper/Arduino/epd2in13/epd2in13.ino
+    for (int i=0; i<10; i++) {
+        unsigned long time_now_s = (millis() - time_start_ms) / 1000;
+        char time_string[] = {'0', '0', ':', '0', '0', '\0'};
+        time_string[0] = time_now_s / 60 / 10 + '0';
+        time_string[1] = time_now_s / 60 % 10 + '0';
+        time_string[3] = time_now_s % 60 / 10 + '0';
+        time_string[4] = time_now_s % 60 % 10 + '0';
+
         display.fillRect(0, 0, GxEPD_HEIGHT, GxEPD_WIDTH, GxEPD_WHITE);
 //        display.eraseDisplay(true); // not partial
         display.setCursor(box_x, cursor_y);
-        display.print(value * i, 2);
+        display.print(time_string);
         display.updateWindow(0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, false);
 //            display.updateWindow(box_x, box_y, box_w, box_h, true);
         display.powerDown();
         // FIXME: need to follow instructions and powerdown, but the display starts to fade
-        delay(2000);
+        delay(500);
     }
 
     delay(10000);
+    display.update();
 
 
-  /* time_now_s = (millis() - time_start_ms) / 1000; */
-  /* char time_string[] = {'0', '0', ':', '0', '0', '\0'}; */
-  /* time_string[0] = time_now_s / 60 / 10 + '0'; */
-  /* time_string[1] = time_now_s / 60 % 10 + '0'; */
-  /* time_string[3] = time_now_s % 60 / 10 + '0'; */
-  /* time_string[4] = time_now_s % 60 % 10 + '0'; */
 
-  /* paint.SetWidth(32); */
-  /* paint.SetHeight(96); */
-  /* paint.SetRotate(ROTATE_90); */
+//    paint.SetWidth(32);
+//    paint.SetHeight(96);
+//    paint.SetRotate(ROTATE_90);
 
-  /* paint.Clear(UNCOLORED); */
-  /* paint.DrawStringAt(0, 4, time_string, &Font24, COLORED); */
-  /* epd.SetFrameMemory(paint.GetImage(), 80, 72, paint.GetWidth(), paint.GetHeight()); */
-  /* epd.DisplayFrame(); */
+//    paint.Clear(UNCOLORED);
+//    paint.DrawStringAt(0, 4, time_string, &Font24, COLORED);
+//    epd.SetFrameMemory(paint.GetImage(), 80, 72, paint.GetWidth(), paint.GetHeight());
+//    epd.DisplayFrame();
 
-  /* delay(500); */
+  delay(500);
 
 }
