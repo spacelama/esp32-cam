@@ -59,11 +59,9 @@ GxIO_Class io(SPI,  EPD_CS, EPD_DC,  EPD_RSET);
 GxEPD_Class display(io, EPD_RSET, EPD_BUSY);
 
 
-void setup(void)
+void display_setup(void)
 {
-    Serial.begin(115200);
-    Serial.println();
-    Serial.println("setup");
+    Serial.println("setup display");
     display.init(); // enable diagnostic output on Serial
     Serial.println("setup done");
 }
@@ -75,7 +73,7 @@ void setup(void)
 
 unsigned long time_start_ms=0;
 
-void loop()
+void display_loop()
 {
 // use asymmetric values for test
     uint16_t box_x = 20;
