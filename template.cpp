@@ -1,1 +1,1 @@
-../template/template.cpp
+../template32/template.cpp

@@ -1,1 +1,1 @@
-../template/template.h
+../template32/template.h

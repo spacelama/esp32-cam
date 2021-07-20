@@ -1,0 +1,1 @@
+../template32/esp8266-compat.h

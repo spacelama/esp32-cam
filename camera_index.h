@@ -1,0 +1,1 @@
+/home/tconnors/Arduino/esp32/libraries/ESP32/examples/Camera/CameraWebServer/camera_index.h
