@@ -20,6 +20,6 @@ EXCLUDE_DIRS=XXXXXXXXXXXXXXXX
 include $(HOME)/Arduino/template/Makefile
 BUILD_EXTRA_FLAGS:=$(BUILD_EXTRA_FLAGS) -DF_CPU=240000000L
 
-UPLOAD_PORT = /dev/ttyUSB0
+#UPLOAD_PORT = /dev/ttyUSB0 - let it choose default last plugged in device
 .DEFAULT_GOAL := ota
 #.DEFAULT_GOAL := flash
