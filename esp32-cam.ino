@@ -121,7 +121,7 @@ void capture_handler(){//httpd_req_t *req){
 
 #ifdef CONFIG_LED_ILLUMINATOR_ENABLED
     app_illuminator_set_led_intensity(led_duty);
-    vTaskDelay(150 / portTICK_PERIOD_MS); // The LED needs to be turned on ~150ms before the call to esp_camera_fb_get()
+    vTaskDelay(300 / portTICK_PERIOD_MS); // The LED needs to be turned on ~150ms before the call to esp_camera_fb_get()
     fb = esp_camera_fb_get();             // or it won't be visible in the frame. A better way to do this is needed.
     app_illuminator_set_led_intensity(0);
 #else
@@ -132,6 +132,7 @@ void capture_handler(){//httpd_req_t *req){
     // frame, which will then be fully illuminated by the flash
 //    fb = esp_camera_fb_get();
 //    esp_camera_fb_return(fb);
+//    vTaskDelay(300 / portTICK_PERIOD_MS); // The LED needs to be turned on ~150ms before the call to esp_camera_fb_get()
     delay(300);
 
     fb = esp_camera_fb_get();
@@ -176,13 +177,13 @@ void capture_handler(){//httpd_req_t *req){
             bufferCounter++;
 
             if(bufferCounter >= bufferSize){ //when the buffer is full...
-                server.sendContent_P(_buffer, bufferCounter); //send the current buffer
+                server.sendContent(_buffer, bufferCounter); //send the current buffer
                 bufferCounter = 0; //reset the counter
             }
         }
         //send the rest bytes if there are some
         if(bufferCounter > 0){
-            server.sendContent_P(_buffer, bufferCounter);
+            server.sendContent(_buffer, bufferCounter);
             bufferCounter = 0;
         }
         syslog.log(LOG_INFO, "esp32cam/capture");
@@ -239,6 +240,7 @@ void stream_handler() { //httpd_req_t *req){
         // frame, which will then be fully illuminated by the flash
 //    fb = esp_camera_fb_get();
 //    esp_camera_fb_return(fb);
+//        vTaskDelay(300 / portTICK_PERIOD_MS); // The LED needs to be turned on ~150ms before the call to esp_camera_fb_get()
         delay(300);
 
         fb = esp_camera_fb_get();
@@ -277,11 +279,11 @@ void stream_handler() { //httpd_req_t *req){
             size_t hlen = snprintf(part_buf, 128, _STREAM_PART, _jpg_buf_len, _timestamp.tv_sec, _timestamp.tv_usec);
 
 //      res = httpd_resp_send_chunk(req, (const char *)part_buf, hlen);
-            server.sendContent_P(part_buf, hlen);
+            server.sendContent(part_buf, hlen);
 //    }
 //    if(res == ESP_OK){
 //      res = httpd_resp_send_chunk(req, (const char *)_jpg_buf, _jpg_buf_len);
-//            server.sendContent_P((const char *)_jpg_buf, _jpg_buf_len);
+//            server.sendContent((const char *)_jpg_buf, _jpg_buf_len);
 
 //first create a fixed buffer
             const int bufferSize = 6000;
@@ -293,19 +295,19 @@ void stream_handler() { //httpd_req_t *req){
                 bufferCounter++;
 
                 if(bufferCounter >= bufferSize){ //when the buffer is full...
-                    server.sendContent_P(_buffer, bufferCounter); //send the current buffer
+                    server.sendContent(_buffer, bufferCounter); //send the current buffer
                     bufferCounter = 0; //reset the counter
                 }
             }
             //send the rest bytes if there are some
             if(bufferCounter > 0){
-                server.sendContent_P(_buffer, bufferCounter);
+                server.sendContent(_buffer, bufferCounter);
                 bufferCounter = 0;
             }
 //    }
 //    if(res == ESP_OK){
 //      res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
-            server.sendContent_P(_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
+            server.sendContent(_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
         }
         syslog.log(LOG_INFO, "esp32cam/stream(cont)");
         if(fb){
@@ -489,11 +491,11 @@ void index_handler(){//httpd_req_t *req){
 //        return httpd_resp_send(req, (const char *)index_ov3660_html_gz, index_ov3660_html_gz_len);
         server.setContentLength(index_ov3660_html_gz_len);
         server.send(200, "text/html");
-        server.sendContent_P(index_ov3660_html_gz, index_ov3660_html_gz_len);
+        server.sendContent(index_ov3660_html_gz, index_ov3660_html_gz_len);
     } else {
         server.setContentLength(index_ov2640_html_gz_len);
         server.send(200, "text/html");
-        server.sendContent_P(index_ov2640_html_gz, index_ov2640_html_gz_len);
+        server.sendContent(index_ov2640_html_gz, index_ov2640_html_gz_len);
     }
 //    return httpd_resp_send(req, (const char *)index_ov2640_html_gz, index_ov2640_html_gz_len);
 }
